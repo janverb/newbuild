@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
+# Usage: bin/build [python]
+#
+# Build or rebuild the installation (virtualenv, pip packages, Odoo modules).
+# When building for the first time, optionally pass a different Python command
+# (e.g. `bin/build python3.5`).
+
 set -e
 cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
-
-if test $# != 0 && ! test -x "$(command -v "$1")"; then
-    cat <<EOF
-Usage: $0 [python]
-
-Build or rebuild the installation (virtualenv, pip packages, Odoo modules).
-When building for the first time, optionally pass a different Python command
-(e.g. \`$0 python3.5\`).
-EOF
-    exit 1
-fi
 
 if ! test -d env; then
     "${1:-python3}" -m venv env
