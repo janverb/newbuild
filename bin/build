@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
+
+if test $# != 0 && ! test -x "$(command -v "$1")"; then
+    cat <<EOF
+Usage: $0 [python]
+
+Build or rebuild the installation (virtualenv, pip packages, Odoo modules).
+When building for the first time, optionally pass a different Python command
+(e.g. \`$0 python3.5\`).
+EOF
+    exit 1
+fi
+
+if ! test -d env; then
+    "${1:-python3}" -m venv env
+elif test $# != 0; then
+    echo "Warning: virtualenv already built, ignoring Python version"
+fi
+
+env/bin/pip install --upgrade wheel 'git+https://github.com/janverb/git-aggregator@therp-patches#egg=git-aggregator'
+
+env/bin/gitaggregate -c repos.yml -j4
+
+env/bin/pip install -r <(
+    bin/combine_requirements parts/odoo/requirements.txt requirements.txt
+)
+env/bin/pip install -e parts/odoo
+
+bin/generate_config

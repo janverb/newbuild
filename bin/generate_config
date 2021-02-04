@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Combine odoo.cfg from template and override and expand directory paths."""
+
+import configparser
+import glob
+import os
+
+basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(basedir)
+
+if not os.path.isfile("etc/odoo.override.cfg"):
+    with open("etc/odoo.override.cfg", "a") as f:
+        f.write("""[options]
+# Put options you want to override here where they won't be clobbered
+# For example:
+#db_name = my_local_db
+#http_port = 8123
+#max_cron_threads = 0
+# Run bin/generate_config or bin/build to apply
+# Changes to this file are ignored by git
+""")
+
+# strict=False allows overriding values
+parser = configparser.ConfigParser(strict=False)
+parser.read(["etc/odoo.template.cfg", "etc/odoo.override.cfg"])
+
+options = parser["options"]
+for key, value in options.items():
+    options[key] = os.path.expanduser(value).replace("{basedir}", basedir)
+
+options["addons_path"] = ",".join(
+    [basedir + "/parts/odoo/odoo/addons", basedir + "/parts/odoo/addons"]
+    + glob.glob(basedir + "/parts/*")
+)
+
+with open("etc/odoo.cfg", "w") as f:
+    parser.write(f)

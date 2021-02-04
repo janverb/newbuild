@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+"""Merge multiple requirements.txt files so that they can override each other.
+
+Merges the files given as arguments and writes the result to stdout.
+
+Mentioning a dependency in a file will ignore all mention of it in earlier
+files.
+"""
+
+from collections import defaultdict
+from sys import argv
+
+from pkg_resources import parse_requirements
+
+
+def read(fname):
+    mapping = defaultdict(list)
+    with open(fname) as f:
+        for req in parse_requirements(f):
+            # Note that keys may not be unique
+            mapping[req.key].append(req)
+    return mapping
+
+
+def main(fnames):
+    reqs = {}
+    for fname in fnames:
+        reqs.update(read(fname))
+    for key in sorted(reqs):
+        for req in reqs[key]:
+            print(req)
+
+
+if __name__ == "__main__":
+    main(argv[1:])
