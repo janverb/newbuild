@@ -21,7 +21,7 @@ fi
 
 env/bin/pip install --upgrade wheel 'git+https://github.com/janverb/git-aggregator@therp-patches#egg=git-aggregator'
 
-env/bin/gitaggregate -c repos.yml -j4
+env/bin/gitaggregate --config repos.yml --jobs 4 aggregate
 
 env/bin/pip install -r <(
     bin/combine_requirements parts/odoo/requirements.txt requirements.txt
