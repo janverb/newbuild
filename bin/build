@@ -7,16 +7,17 @@
 
 set -e
 cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
+source versions
 
 if ! test -d env; then
-    "${1:-python3}" -m venv env
+    "${1:-$PYTHON_VERSION}" -m venv env
 elif test $# != 0; then
     echo "Warning: virtualenv already built, ignoring Python version"
 fi
 
 env/bin/pip install --upgrade wheel 'git+https://github.com/janverb/git-aggregator@therp-patches#egg=git-aggregator'
 
-env/bin/gitaggregate --config repos.yml --jobs 4 aggregate
+env/bin/gitaggregate --expand-env --env-file=versions --config=repos.yml --jobs=4 aggregate
 
 env/bin/pip install -r <(
     bin/combine_requirements parts/odoo/requirements.txt requirements.txt

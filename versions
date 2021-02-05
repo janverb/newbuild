@@ -1,0 +1,5 @@
+# The branch used by gitaggregate in repos.yml
+ODOO_VERSION=12.0
+# The default Python version used to create the virtualenv
+# Can be overridden with an argument to bin/build, e.g. 'bin/build python3.5'
+PYTHON_VERSION=python3
