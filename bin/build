@@ -2,7 +2,7 @@
 # Usage: bin/build [python]
 #
 # Build or rebuild the installation (virtualenv, pip packages, Odoo modules).
-# When building for the first time, optionally pass a different Python command
+# When building for the first time, optionally pass a different Python version
 # (e.g. `bin/build python3.5`).
 
 set -e
@@ -10,12 +10,12 @@ cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
 source versions
 
 if ! test -d env; then
-    "${1:-$PYTHON_VERSION}" -m venv env
+    virtualenv --python "${1:-$PYTHON_VERSION}" env
 elif test $# != 0; then
     echo "Warning: virtualenv already built, ignoring Python version"
 fi
 
-env/bin/pip install --upgrade pip wheel 'git+https://github.com/janverb/git-aggregator@therp-patches#egg=git-aggregator'
+env/bin/pip install --upgrade 'git+https://github.com/janverb/git-aggregator@therp-patches#egg=git-aggregator'
 
 env/bin/gitaggregate --expand-env --env-file=versions --config=repos.yml --jobs=4 aggregate
 
