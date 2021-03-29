@@ -2,7 +2,11 @@
 basedir="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
 python="$basedir"/env/bin/python
 cfg="$basedir"/etc/odoo.cfg
-odoo="$basedir"/parts/odoo/odoo-bin
+if test -f "$basedir"/parts/odoo/odoo-bin; then
+    odoo="$basedir"/parts/odoo/odoo-bin
+else
+    odoo="$basedir"/parts/odoo/odoo.py
+fi
 
 if ! test -f "$python" || ! test -f "$odoo"; then
     echo "Installation not built yet! Run bin/build"
