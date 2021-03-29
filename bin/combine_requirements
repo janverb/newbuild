@@ -10,15 +10,24 @@ files.
 from collections import defaultdict
 from sys import argv
 
-from pkg_resources import parse_requirements
+from pkg_resources import Requirement
 
 
 def read(fname):
     mapping = defaultdict(list)
     with open(fname) as f:
-        for req in parse_requirements(f):
-            # Note that keys may not be unique
-            mapping[req.key].append(req)
+        for line in f:
+            line = line.strip()
+            if line.startswith("#") or not line:
+                continue
+            try:
+                req = Requirement.parse(line)
+                # Note that keys may not be unique
+                mapping[req.key].append(str(req))
+            except ValueError:
+                # pkg_resources does not understand git+...
+                # In such cases we just pass them through
+                mapping[line].append(line)
     return mapping
 
 
