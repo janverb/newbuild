@@ -1,16 +1,27 @@
 #!/usr/bin/env python3
-"""Combine odoo.cfg from template and override and expand directory paths."""
+"""Combine odoo.cfg from template and override.
+
+This also generates an addons_path and expands ~ and $basedir and environment
+variables.
+"""
 
 import configparser
 import glob
 import os
+import string
 
 basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-os.chdir(basedir)
-
-if not os.path.isfile("etc/odoo.override.cfg"):
-    with open("etc/odoo.override.cfg", "a") as f:
-        f.write("""[options]
+addons_path = [
+    basedir + "/parts/odoo/odoo/addons",
+    basedir + "/parts/odoo/addons",
+    *glob.glob(basedir + "/parts/*"),
+]
+template = "etc/odoo.template.cfg"
+override = "etc/odoo.override.cfg"
+target = "etc/odoo.cfg"
+variables = dict(os.environ)
+variables["basedir"] = basedir
+override_template = """[options]
 # Put options you want to override here where they won't be clobbered
 # For example:
 #db_name = my_local_db
@@ -18,20 +29,26 @@ if not os.path.isfile("etc/odoo.override.cfg"):
 #max_cron_threads = 0
 # Run bin/generate_config or bin/build to apply
 # Changes to this file are ignored by git
-""")
+"""
+
+os.chdir(basedir)
+
+if not os.path.isfile(override):
+    with open(override, "a") as f:
+        f.write(override_template)
 
 # strict=False allows overriding values
 parser = configparser.ConfigParser(strict=False)
-parser.read(["etc/odoo.template.cfg", "etc/odoo.override.cfg"])
-
+parser.add_section("options")
 options = parser["options"]
+options["addons_path"] = ",".join(addons_path)
+
+parser.read([template, override])
+
 for key, value in options.items():
-    options[key] = os.path.expanduser(value).replace("{basedir}", basedir)
+    value = string.Template(value).safe_substitute(variables)
+    value = os.path.expanduser(value)
+    options[key] = value
 
-options["addons_path"] = ",".join(
-    [basedir + "/parts/odoo/odoo/addons", basedir + "/parts/odoo/addons"]
-    + glob.glob(basedir + "/parts/*")
-)
-
-with open("etc/odoo.cfg", "w") as f:
+with open(target, "w") as f:
     parser.write(f)
