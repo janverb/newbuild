@@ -15,7 +15,10 @@ elif test $# != 0; then
     echo "Warning: virtualenv already built, ignoring Python version"
 fi
 
-env/bin/pip install --upgrade 'git+https://github.com/janverb/git-aggregator@therp-patches#egg=git-aggregator'
+env/bin/pip install --upgrade \
+            'git+https://github.com/janverb/git-aggregator@therp-patches#egg=git-aggregator' \
+            'git+https://github.com/anybox/anybox.recipe.odoo#egg=anybox.recipe.odoo'
+
 
 env/bin/gitaggregate --expand-env --env-file=versions --config=repos.yml --jobs=4 aggregate
 

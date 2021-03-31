@@ -1,47 +1,30 @@
 #!/usr/bin/env bash
-# Start an interactive Odoo session or run a Python script inside Odoo.
+# Wrapper around the original python_odoo for compatibility
+# Consider using `odoo shell` instead
 
 basedir="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
+export basedir="$basedir"
 
-if [ $# = 0 ]; then
-    exec "$basedir"/bin/odoo shell
+setup='
+import os, sys
+from anybox.recipe.odoo.runtime.session import Session
+basedir = os.environ["basedir"]
+session = Session(os.path.join(basedir, "etc/odoo.cfg"), basedir)
+'
+
+if test $# = 0; then
+    exec "$basedir"/env/bin/python -i -c "$setup"
+elif test "$1" = "-c"; then
+    shift
+    command=$1
+    shift
+else
+    command='
+del sys.argv[0]
+with open(sys.argv[0]) as _f:
+    _script = _f.read()
+exec(_script)
+'
 fi
 
-case $1 in
-    -c)
-        shift
-        code='code = sys.argv[0]'
-        ;;
-    -*)
-        cat <<EOF
-Usage: $0 [filename | -c command] [args...]
-
-Start an interactive Odoo session or run a Python script inside Odoo.
-
-This is a wrapper for 'odoo shell' that emulates buildout's 'python_odoo'
-command.
-EOF
-        exit 1
-        ;;
-    *)
-        code='with open(sys.argv[0]) as f: code = f.read()'
-        ;;
-esac
-
-# Forward sys.argv and fake some of python_odoo's API
-# This is specifically enough to keep testherp.py working, other scripts
-# may require more work
-export ODOO_CONFIG_FILE="$basedir"/etc/odoo.cfg
-exec "$basedir"/bin/odoo shell <<EOF
-import unittest.mock, os, sys
-session = unittest.mock.Mock()
-session.env = env
-session.cr = env.cr
-session.uid = env.uid
-session.context = env.context
-session.registry = env.registry
-session.openerp_config_file = os.environ['ODOO_CONFIG_FILE']
-sys.argv = $("$basedir"/env/bin/python -c "import sys; print(sys.argv[1:])" "$@")
-$code
-exec(code, locals())
-EOF
+exec "$basedir"/env/bin/python -c "$setup$command" "$@"
