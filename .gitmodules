@@ -1,0 +1,4 @@
+[submodule "bin"]
+	path = bin
+	url = ssh://git@gitlab.therp.nl/therp/newbuild
+	branch = scripts

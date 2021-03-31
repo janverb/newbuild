@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-basedir="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
-exec "$basedir"/bin/odoo -u all --stop-after-init "$@"
