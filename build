@@ -27,3 +27,7 @@ env/bin/pip install -r <(
 env/bin/pip install -e parts/odoo
 
 bin/generate_config
+
+if test -f post-build.sh; then
+    ./post-build.sh
+fi
