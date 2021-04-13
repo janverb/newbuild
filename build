@@ -19,7 +19,6 @@ env/bin/pip install --upgrade \
             'git+https://github.com/janverb/git-aggregator@therp-patches#egg=git-aggregator' \
             'git+https://github.com/anybox/anybox.recipe.odoo#egg=anybox.recipe.odoo'
 
-
 env/bin/gitaggregate --expand-env --env-file=versions --config=repos.yml --jobs=4 aggregate
 
 env/bin/pip install -r <(
