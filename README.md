@@ -1,3 +1,5 @@
+**(This version of the repository is archived and unmaintained.)**
+
 This is a set of scripts to build an Odoo installation. It clones the repositories of Odoo and its addons, installs the required Python packages, and generates a configuration file.
 
 It replaces buildout, the system we used at Therp before.

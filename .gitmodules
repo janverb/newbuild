@@ -1,4 +1,4 @@
 [submodule "bin"]
 	path = bin
-	url = ssh://git@gitlab.therp.nl/therp/newbuild
+	url = https://github.com/janverb/newbuild
 	branch = scripts
